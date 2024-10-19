@@ -1,0 +1,6 @@
+/_build
+/_output
+/compile_flags.txt
+*.dylib
+*.elf
+*.pdx

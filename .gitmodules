@@ -1,0 +1,3 @@
+[submodule "packages/playdate-lib-template"]
+	path = packages/playdate-lib-template
+	url = git@github.com:fum1h1ro/playdate-lib-template.git
