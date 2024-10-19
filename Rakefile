@@ -102,7 +102,7 @@ def define_build_task(target, type)
 end
 
 def update_file(path)
-  sh %(curl --create-dirs --silent --remote-time -o #{path} -H "Cache-Control: no-cache" https://raw.githubusercontent.com/fum1h1ro/playdate-game-template/refs/heads/main/#{path})
+  sh %(curl --create-dirs --silent --remote-time -o #{path} "https://raw.githubusercontent.com/fum1h1ro/playdate-game-template/refs/heads/main/#{path}?#{Time.now.to_i}")
 end
 
 task :default do
