@@ -5,7 +5,7 @@ def sanitize(name)
 end
 
 CURRENT_DIR = File.dirname(__FILE__)
-SDK_ROOT = ->do
+SDK_ROOT = lambda do
   env = ENV['PLAYDATE_SDK_PATH']
   return env unless env.nil?
 
@@ -15,7 +15,7 @@ SDK_ROOT = ->do
   end
   raise 'cannot found SDK'
 end.call
-PDXINFO = ->do
+PDXINFO = lambda do
   filename = 'Source/pdxinfo'
   pdxinfo = {}
   begin
@@ -23,9 +23,8 @@ PDXINFO = ->do
       pair = x.chomp.split(/=/, 2)
       pdxinfo[pair[0]] = pair[1].strip
     end
-  rescue Errno::ENOENT => e
-    $stderr.puts "ERROR: #{filename} not found"
-    exit 1
+  rescue Errno::ENOENT => _e
+    raise "ERROR: #{filename} not found"
   end
   pdxinfo
 end.call
@@ -38,10 +37,9 @@ PDX_FILES = FileList['*.pdx']
 PDX_DEBUG = FileList['*debug.pdx']
 PDX_RELEASE = FileList['*release.pdx']
 LUA_FILES = FileList['Source/**/*.lua']
-LUALIB_DIR = 'lualib'.freeze
-LUALIB_FILES = FileList["#{LUALIB_DIR}/**/*.lua"]
-BUILD_TARGETS = ['Simulator', 'Device']
-BUILD_TYPES = ['Debug', 'Release']
+LUALIB_DIRS = FileList['**/lualib'].map { |d| File.expand_path(d) }
+BUILD_TARGETS = %w[Simulator Device].freeze
+BUILD_TYPES = %w[Debug Release].freeze
 PACKAGE_DIRS = FileList['packages/*']
 PACKAGE_COMPILE_FLAGS_FILES = PACKAGE_DIRS.map { |d| "#{d}/compile_flags.txt" }
 COMPILE_FLAGS_FILES = FileList['**/compile_flags.txt']
@@ -71,7 +69,7 @@ def define_cmake_make_task(target, type, option)
   task type.downcase => [build_dir] do |t|
     cd t.source do
       unless File.exist?('Makefile')
-        sh %Q!PLAYDATE_APP_NAME=#{sanitize(PDXINFO['name'])} cmake ../.. -DCMAKE_BUILD_TYPE=#{type} #{option}!
+        sh %(PLAYDATE_APP_NAME=#{sanitize(PDXINFO['name'])} cmake ../.. -DCMAKE_BUILD_TYPE=#{type} #{option})
       end
     end
   end
@@ -83,7 +81,7 @@ def define_cmake_xcode_task(target, option)
   desc "Generate Xcode project (#{target})"
   task target.downcase => build_dir do |t|
     cd t.source do
-      sh %Q!PLAYDATE_APP_NAME=#{sanitize(PDXINFO['name'])} cmake ../.. #{option} -G Xcode!
+      sh %(PLAYDATE_APP_NAME=#{sanitize(PDXINFO['name'])} cmake ../.. #{option} -G Xcode)
       sh 'open .'
     end
   end
@@ -97,7 +95,8 @@ def define_build_task(target, type)
       FileList['*.dylib', '*.elf'].each do |binfile|
         rm_f binfile
       end
-      sh %Q!PLAYDATE_LIB_PATH=#{File.expand_path("#{CURRENT_DIR}/#{LUALIB_DIR}")} make all!
+      #sh %(PLAYDATE_LIB_PATH="#{LUALIB_DIRS.join(';')}" make all)
+      sh %(PLAYDATE_LIB_PATH="#{LUALIB_DIRS[0]}" make all)
     end
   end
 end
@@ -107,7 +106,7 @@ def update_file(path)
 end
 
 task :default do
-  p PACKAGE_DIRS
+  p LUALIB_DIRS
 end
 
 namespace :cmake do
@@ -151,12 +150,14 @@ end
 namespace :run do
   desc 'Run on Simulator(Debug)'
   task :debug do
-    raise "no pdx file" if PDX_DEBUG.empty?
+    raise 'no pdx file' if PDX_DEBUG.empty?
+
     sh "open \"#{PLAYDATE_SIMULATOR}\" #{PDX_DEBUG[0]}"
   end
   desc 'Run on Simulator'
   task :release do
-    raise "no pdx file" if PDX_RELEASE.empty?
+    raise 'no pdx file' if PDX_RELEASE.empty?
+
     sh "open \"#{PLAYDATE_SIMULATOR}\" #{PDX_RELEASE[0]}"
   end
 end
