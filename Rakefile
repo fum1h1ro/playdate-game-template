@@ -95,8 +95,7 @@ def define_build_task(target, type)
       FileList['*.dylib', '*.elf'].each do |binfile|
         rm_f binfile
       end
-      #sh %(PLAYDATE_LIB_PATH="#{LUALIB_DIRS.join(';')}" make all)
-      sh %(PLAYDATE_LIB_PATH="#{LUALIB_DIRS[0]}" make all)
+      sh %(PLAYDATE_LIB_PATH="#{LUALIB_DIRS.join(':')}" make all)
     end
   end
 end
