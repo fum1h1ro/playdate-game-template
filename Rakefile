@@ -69,7 +69,7 @@ def define_cmake_make_task(target, type, option)
   task type.downcase => [build_dir] do |t|
     cd t.source do
       unless File.exist?('Makefile')
-        sh %(PLAYDATE_APP_NAME=#{sanitize(PDXINFO['name'])} cmake ../.. -DCMAKE_BUILD_TYPE=#{type} #{option})
+        sh %(PLAYDATE_PROJ_NAME=#{sanitize(PDXINFO['name'])} cmake ../.. -DCMAKE_BUILD_TYPE=#{type} #{option})
       end
     end
   end
@@ -81,7 +81,7 @@ def define_cmake_xcode_task(target, option)
   desc "Generate Xcode project (#{target})"
   task target.downcase => build_dir do |t|
     cd t.source do
-      sh %(PLAYDATE_APP_NAME=#{sanitize(PDXINFO['name'])} cmake ../.. #{option} -G Xcode)
+      sh %(PLAYDATE_PROJ_NAME=#{sanitize(PDXINFO['name'])} cmake ../.. #{option} -G Xcode)
       sh 'open .'
     end
   end
@@ -166,9 +166,9 @@ task test: ['build:simulator:debug'] do
   cd "#{BUILD_DIR}/simulator/debug" do
     sh 'make test'
   rescue
-    $stderr.puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-    $stderr.puts "FAILED\n"
-    $stderr.puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+    warn "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+    warn "FAILED\n"
+    warn "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
     print("================================================================================\n")
     File.read('Testing/Temporary/LastTest.log').each_line do |l|
       $stderr.print(l) if l =~ /FAILED/

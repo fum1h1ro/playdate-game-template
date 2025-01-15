@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 set(CMAKE_C_STANDARD 11)
 
 set(ENVSDK $ENV{PLAYDATE_SDK_PATH})
-set(PLAYDATE_APP_NAME $ENV{PLAYDATE_APP_NAME})
+set(PLAYDATE_PROJ_NAME $ENV{PLAYDATE_PROJ_NAME})
 
 if (NOT ${ENVSDK} STREQUAL "")
 	# Convert path from Windows
@@ -39,13 +39,11 @@ file(GLOB SOURCE RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c")
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 
-message("name: ${PLAYDATE_APP_NAME}")
-#set(PLAYDATE_GAME_NAME ${PLAYDATE_APP_NAME}.${BUILD_TYPE})
-#set(PLAYDATE_GAME_DEVICE ${PLAYDATE_APP_NAME}.${BUILD_TYPE})
-set(PLAYDATE_GAME_NAME ${PLAYDATE_APP_NAME}.simulator.${BUILD_TYPE})
-set(PLAYDATE_GAME_DEVICE ${PLAYDATE_APP_NAME}.device.${BUILD_TYPE})
+message("name: ${PLAYDATE_PROJ_NAME}")
+set(PLAYDATE_GAME_NAME ${PLAYDATE_PROJ_NAME}.simulator.${BUILD_TYPE})
+set(PLAYDATE_GAME_DEVICE ${PLAYDATE_PROJ_NAME}.device.${BUILD_TYPE})
 
-project(${PLAYDATE_APP_NAME} C ASM)
+project(${PLAYDATE_PROJ_NAME} C ASM)
 
 if (TOOLCHAIN STREQUAL "armgcc")
     set(TARGET_NAME ${PLAYDATE_GAME_DEVICE})
@@ -79,24 +77,8 @@ foreach(package IN LISTS tmp)
         message(STATUS "Include only")
     endif()
     target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/${package}/include")
-    #target_link_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/${package}/_output")
 endforeach()
 message("Libraries: ${LIBRARIES}")
-
-#if(TOOLCHAIN STREQUAL "armgcc")
-#    target_link_libraries(${TARGET_NAME} -Wl,--start-group "${LIBRARIES}" -Wl,--end-group)
-#else()
-#    target_link_libraries(${TARGET_NAME} "${LIBRARIES}")
-#endif()
-
-
-
-
-
-
-
-
-
 
 
 generate_compile_flags(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
