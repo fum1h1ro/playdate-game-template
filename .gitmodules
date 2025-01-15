@@ -1,3 +1,6 @@
 [submodule "packages/playdate-lib-template"]
 	path = packages/playdate-lib-template
 	url = git@github.com:fum1h1ro/playdate-lib-template.git
+[submodule "packages/playdate-types"]
+	path = packages/playdate-types
+	url = git@github.com:balpha/playdate-types.git

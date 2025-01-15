@@ -1,5 +1,5 @@
 local submodule = import "sub"
---local submodule2 = import "sub2"
+local submodule2 = import "sub2"
 
 local idx = 0
 
