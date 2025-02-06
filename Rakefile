@@ -100,8 +100,8 @@ def define_build_task(target, type)
   end
 end
 
-def update_file(path)
-  sh %(curl --create-dirs --silent --remote-time -H "If-None-Match:" -H "Cache-Control: no-cache" -o #{path} "https://raw.githubusercontent.com/fum1h1ro/playdate-game-template/refs/heads/main/#{path}")
+def update_file(repo, branch, path)
+  sh %(curl --create-dirs --silent --remote-time -H "If-None-Match:" -H "Cache-Control: no-cache" -o #{path} "https://raw.githubusercontent.com/#{repo}/refs/heads/#{branch}/#{path}")
 end
 
 task :default do
@@ -185,7 +185,12 @@ task :update do
     'Rakefile',
     'compile_flags.txt.in',
   ].each do |path|
-    update_file(path)
+    update_file('fum1h1ro/playdate-game-template', 'main', path)
+  end
+  [
+    'include/acutest.h',
+  ].each do |path|
+    update_file('mity/acutest', 'master', path)
   end
 end
 
