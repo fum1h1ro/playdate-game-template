@@ -164,7 +164,7 @@ end
 
 desc 'Test'
 task test: ['build:simulator:debug'] do
-  cd "#{BUILD_DIR}/simulator/debug" do
+  cd "#{BUILD_DIR}/simulator.debug" do
     sh 'make test'
   rescue
     warn "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
