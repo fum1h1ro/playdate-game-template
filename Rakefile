@@ -76,12 +76,20 @@ def define_cmake_make_task(target, type, option)
 end
 
 def define_cmake_xcode_task(target, option)
-  build_dir = "#{BUILD_DIR}/#{target}.xcode"
+  build_dir = "#{BUILD_DIR}/#{target}proj"
   directory build_dir
   desc "Generate Xcode project (#{target})"
   task target.downcase => build_dir do |t|
     cd t.source do
-      sh %(PLAYDATE_PROJ_NAME=#{sanitize(PDXINFO['name'])} cmake ../.. #{option} -G Xcode)
+      project_name = sanitize(PDXINFO['name'])
+      sh %(PLAYDATE_PROJ_NAME=#{project_name} cmake ../.. #{option} -G Xcode)
+      File.write('open.command', <<~EOS
+        #!/bin/sh
+        cd `dirname $0`
+        PLAYDATE_LIB_PATH=#{LUALIB_DIRS.join(':')} open "#{project_name}.xcodeproj"
+      EOS
+      )
+      chmod 0755, 'open.command'
       sh 'open .'
     end
   end
